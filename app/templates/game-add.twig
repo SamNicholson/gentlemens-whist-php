@@ -1,0 +1,24 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Slim 3</title>
+    <link href='//fonts.googleapis.com/css?family=Lato:300' rel='stylesheet' type='text/css'>
+    <link href='{{ base_url() }}/css/style.css' rel='stylesheet' type='text/css'>
+</head>
+<body>
+<form action="{{ base_url() }}/games/create/process" method="post">
+    <h1>Create Game</h1>
+    <br><br>
+    Players
+    <br><br>
+    {%  for player in players %}
+        <label>
+            <input type="checkbox" name="players[]" value="{{ player.id }}"> {{ player.name }} <input type="text" name="nickname[{{ player.id }}]" placeholder="Nickname"><br><br>
+        </label>
+    {% endfor %}
+    <br><br>
+    <input type="submit" value="Create">
+</form>
+</body>
+</html>
+
