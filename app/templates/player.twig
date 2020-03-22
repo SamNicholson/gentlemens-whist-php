@@ -1,0 +1,26 @@
+{% extends 'base-container.twig' %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-12 text-center">
+            <h1>{{ player.id ? 'Update' : 'Create' }} Player</h1>
+            <div class="row">
+                <div class="col-md-6 col-md-offset-3">
+                    <form action="{{ base_url() }}/players/{{ player.id ? 'update' : 'add' }}/process" method="post" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" class="form-control" id="username" name="username" placeholder="Enter name" value="{{ player.name }}">
+                        </div>
+                        <label for="username">Profile Picture</label>
+                        <div class="form-group well well-sm text-center">
+                            <div class="custom-file">
+                                <input type="file"  name="image" class="custom-file-input" id="customFile">
+                            </div>
+                        </div>
+                        <button type="submit" class="whist-button">{{ player.id ? 'Update' : 'Create' }}</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

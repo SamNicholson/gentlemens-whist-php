@@ -1,15 +1,22 @@
-<html>
-    <head>
-        <meta charset="utf-8"/>
-        <title>Slim 3</title>
-        <link href='//fonts.googleapis.com/css?family=Lato:300' rel='stylesheet' type='text/css'>
-        <link href='{{ base_url() }}/css/style.css' rel='stylesheet' type='text/css'>
-    </head>
-    <body>
-        <h1>Who are you?</h1>
-        {%  for player in players %}
-            <a href="login?user={{ player.id }}">{{ player.name }}</a>
-        {% endfor %}
-    </body>
-</html>
-        
+{% extends 'base-container.twig' %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-12 text-center">
+            <h1>Select your player</h1>
+            <br>
+            <div class="row">
+                {%  for player in players %}
+                    <div class="col-xl-3 col-md-4 col-sm-4 col-xs-6 text-center">
+                        <a href="login?user={{ player.id }}">
+                            <img src="data:image/png;base64, {{ player.image }}" class="profile-image"><br>
+                            <h3>
+                                {{ player.name }}
+                            </h3>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

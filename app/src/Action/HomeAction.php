@@ -2,6 +2,7 @@
 namespace App\Action;
 
 use App\Utility\Database;
+use App\Utility\DataRequest;
 use App\Utility\GameDrawer;
 use Slim\Views\Twig;
 use Psr\Log\LoggerInterface;
@@ -26,9 +27,7 @@ final class HomeAction
 
     public function login(Request $request, Response $response, $args)
     {
-        $players = $this->database->q(
-            "SELECT * FROM players"
-        );
+        $players = DataRequest::getAllPlayers();
         $this->view->render($response, 'login.twig',
             [
                 'players' => $players
@@ -44,16 +43,10 @@ final class HomeAction
 
     public function games(Request $request, Response $response, $args)
     {
-        $games = $this->database->q(
-            "SELECT games.id, games.name, GROUP_CONCAT(DISTINCT games_players.nickname ORDER BY games_players.player_id SEPARATOR ', ') AS playerList FROM games
-                    LEFT JOIN games_players ON games.id = games_players.game_id
-                    LEFT JOIN players ON players.id = games_players.player_id
-                    GROUP BY games.id
-                    "
-        );
         $this->view->render($response, 'games.twig',
             [
-                'games' => $games
+                'completeGames'   => DataRequest::getCompleteGames(),
+                'unCompleteGames' => DataRequest::getNonCompleteGames()
             ]);
         return $response;
     }

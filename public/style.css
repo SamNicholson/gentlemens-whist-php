@@ -1,0 +1,63 @@
+body {
+    background-color: #259c9b;
+}
+
+h1, h2, h3, h4, h5, label, table {
+    color: white;
+    font-weight: 200;
+}
+
+.game-table h1 {
+    color: #259c9b;
+    margin-top: 0;
+}
+
+.game-table {
+    background-color: white;
+    color: #259c9b;
+    text-align: center;
+    width:100%;
+    border-radius: 10px;
+}
+
+.game-table td, .game-table th {
+    padding: 10px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.game-table tr:last-child td {
+    padding-bottom: 20px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.profile-image {
+    width:100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 5px solid white;
+}
+
+.whist-button-sm {
+    font-size: 18px !important;
+    font-weight: bold;
+    padding: 5px;
+    border: 2px solid #259c9b !important;
+}
+
+.whist-button {
+    border-radius: 4px;
+    border: solid 1px #979797;
+    background-color: #ffffff;
+    font-size: 20px;
+    font-weight: 500;
+    text-align: center;
+    color: #259c9b;
+}
+
+.whist-button:hover {
+    color: #ffffff;
+    background-color: #259c9b;
+    text-decoration: none;
+}

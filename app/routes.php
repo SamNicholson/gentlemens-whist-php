@@ -30,3 +30,15 @@ $app->get('/games/cards/{gameId}', App\Action\GameAction::class . ':cards')
 
 $app->get('/games/input', App\Action\GameAction::class . ':input')
     ->setName('input');
+
+$app->get('/players/add', App\Action\PlayerAction::class . ':addPlayer')
+    ->setName('addPlayer');
+
+$app->post('/players/add/process', App\Action\PlayerAction::class . ':addPlayerProcess')
+    ->setName('addPlayerProcess');
+
+$app->get('/players/update', App\Action\PlayerAction::class . ':updatePlayer')
+    ->setName('updatePlayer');
+
+$app->post('/players/update/process', App\Action\PlayerAction::class . ':updatePlayerProcess')
+    ->setName('addPlayerProcess');

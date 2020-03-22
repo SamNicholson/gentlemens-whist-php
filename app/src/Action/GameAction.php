@@ -15,6 +15,19 @@ use Slim\Views\Twig;
 
 class GameAction
 {
+    /**
+     * @var Twig
+     */
+    private $view;
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+    /**
+     * @var Database
+     */
+    private $database;
+
     public function __construct(Twig $view, LoggerInterface $logger, Database $database)
     {
         $this->view = $view;

@@ -38,6 +38,7 @@ $container['logger'] = function ($c) {
 };
 $container['database'] = function ($c) {
     $database = new \App\Utility\Database('localhost', 'root', '', 'whist');
+    \App\Utility\DataRequest::setDatabase($database);
     return $database;
 };
 
@@ -51,4 +52,8 @@ $container[App\Action\HomeAction::class] = function ($c) {
 
 $container[App\Action\GameAction::class] = function ($c) {
     return new App\Action\GameAction($c->get('view'), $c->get('logger'), $c->get('database'));
+};
+
+$container[App\Action\PlayerAction::class] = function ($c) {
+    return new App\Action\PlayerAction($c->get('view'), $c->get('logger'), $c->get('database'));
 };

@@ -1,28 +1,6 @@
-<html>
-<head>
-    <meta charset="utf-8"/>
-    <title>Slim 3</title>
-    <link href='//fonts.googleapis.com/css?family=Lato:300' rel='stylesheet' type='text/css'>
-    <link href='{{ base_url() }}/css/style.css' rel='stylesheet' type='text/css'>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.1/underscore-min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/0.9.2/backbone-min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/hogan.js/2.0.0/hogan.js"></script>
+{% extends 'base-container.twig' %}
 
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-
-    <!-- Optional theme -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
-
-    <!-- Latest compiled and minified JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-
-    <link rel="stylesheet" href="{{ base_url }}/whist/public/cards/cards.css" media="all">
-
-</head>
-<body>
-    <div class="container">
+{% block content %}
         <h4>Game Details: {{ game.name }}</h4>
         <br><br>
         <div class="row">
@@ -61,85 +39,83 @@
                 </div>
             </div>
         </div>
-    </div>
-</body>
-</html>
-<script type="text/javascript">
-    var notAllowedValue = '';
+        <script type="text/javascript">
+            var notAllowedValue = '';
 
-    $(function() {
-        setInterval(
-            updateScore,
-            1000
-        );
-        function updateScore() {
-            $.get('../../games/score/{{ game.id }}', function(response) {
-                $('#game-score-container').html(response);
+            $(function() {
+                setInterval(
+                    updateScore,
+                    1000
+                );
+                function updateScore() {
+                    $.get('../../games/score/{{ game.id }}', function(response) {
+                        $('#game-score-container').html(response);
+                    });
+                }
+                setInterval(
+                    updateActions,
+                    1000
+                );
+                function updateActions() {
+                    $.get('../../games/actions/{{ game.id }}', function(response) {
+                        $('#game-actions-container').html(response);
+                    });
+                }
+                setInterval(
+                    updateCards,
+                    1000
+                );
+                function updateCards() {
+                    $.get('../../games/cards/{{ game.id }}', function(response) {
+                        $('#game-cards-container').html(response);
+                    });
+                }
+                $('.submit-data').on('click', function() {
+                    submitData();
+                });
             });
-        }
-        setInterval(
-            updateActions,
-            1000
-        );
-        function updateActions() {
-            $.get('../../games/actions/{{ game.id }}', function(response) {
-                $('#game-actions-container').html(response);
-            });
-        }
-        setInterval(
-            updateCards,
-            1000
-        );
-        function updateCards() {
-            $.get('../../games/cards/{{ game.id }}', function(response) {
-                $('#game-cards-container').html(response);
-            });
-        }
-        $('.submit-data').on('click', function() {
-            submitData();
-        });
-    });
 
-    function submitData()
-    {
-        $.get( "../../games/input", {
-            gameId: $('#game-overlay-game-id').val(),
-            hand: $('#game-overlay-hand').val(),
-            playerId: $('#game-overlay-player-id').val(),
-            valueType: $('#game-overlay-value-type').val(),
-            value: $('#game-overlay-value').val(),
-        })
-            .done(function( data ) {
-                $('#game-overlay').modal('hide');
-            });
-    }
+            function submitData()
+            {
+                $.get( "../../games/input", {
+                    gameId: $('#game-overlay-game-id').val(),
+                    hand: $('#game-overlay-hand').val(),
+                    playerId: $('#game-overlay-player-id').val(),
+                    valueType: $('#game-overlay-value-type').val(),
+                    value: $('#game-overlay-value').val(),
+                })
+                    .done(function( data ) {
+                        $('#game-overlay').modal('hide');
+                    });
+            }
 
-    function sendComplete(gameId, handId)
-    {
-        $.get( "../../games/input", {
-            gameId:     gameId,
-            hand:       handId,
-            valueType: 'complete'
-        })
-            .done(function( data ) {
-                $('#game-overlay').modal('hide');
-            });
-    }
+            function sendComplete(gameId, handId)
+            {
+                $.get( "../../games/input", {
+                    gameId:     gameId,
+                    hand:       handId,
+                    valueType: 'complete'
+                })
+                    .done(function( data ) {
+                        $('#game-overlay').modal('hide');
+                    });
+            }
 
-    function populateAndShowOverlay(gameId, handId, playerId, text, valueType, value)
-    {
-        if (valueType == 'complete' ) {
-            sendComplete(gameId, handId);
-        }
-        $('#game-overlay-type').html(text);
-        $('#game-overlay-game-id').val(gameId);
-        $('#game-overlay-hand').val(handId);
-        $('#game-overlay-player-id').val(playerId);
+            function populateAndShowOverlay(gameId, handId, playerId, text, valueType, value)
+            {
+                if (valueType == 'complete' ) {
+                    sendComplete(gameId, handId);
+                }
+                $('#game-overlay-type').html(text);
+                $('#game-overlay-game-id').val(gameId);
+                $('#game-overlay-hand').val(handId);
+                $('#game-overlay-player-id').val(playerId);
 
-        $('#game-overlay-value-type').val(valueType);
-        $('#game-overlay-value').val(value);
+                $('#game-overlay-value-type').val(valueType);
+                $('#game-overlay-value').val(value);
 
-        $('#game-overlay').modal('show');
+                $('#game-overlay').modal('show');
 
-    }
-</script>
+            }
+        </script>
+{% endblock %}

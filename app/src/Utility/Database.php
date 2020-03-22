@@ -99,7 +99,7 @@ class Database
             if (is_object($value)) {
                 $value = (string) $value;
             }
-            $value = \WAL\Core\Database\Escape::quote($value);
+            $value = '"' .$value . '"';
             $keys[] = '/[?]/';
         }
 

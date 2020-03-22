@@ -1,37 +1,62 @@
-<html>
-<head>
-    <meta charset="utf-8"/>
-    <title>Slim 3</title>
-    <link href='//fonts.googleapis.com/css?family=Lato:300' rel='stylesheet' type='text/css'>
-    <link href='{{ base_url() }}/css/style.css' rel='stylesheet' type='text/css'>
-</head>
-<body style="text-align:center;">
-<h1>Games</h1>
-<a href="games/create">New</A>
-<div style="text-align: center">
+{% extends 'base-container.twig' %}
 
-    <table style="text-align: center">
+{% block content %}
+    <div class="row">
+    <div class="col-md-12 text-center">
+    <h1>Games</h1>
+    <br>
+    <table class="game-table">
         <thead>
             <tr>
+                <th colspan="4">
+                    <h1>Active Games</h1>
+                </th>
+            </tr>
+            <tr>
                 <th>ID</th>
-                <th>Name</th>
                 <th>Players</th>
+                <th>Time Created</th>
+                <th></th>
             </tr>
         </thead>
-        {%  for game in games %}
+        {%  for game in unCompleteGames %}
             <tr>
                 <td>{{ game.id }}</td>
-                <td>{{ game.name }}</td>
                 <td>{{ game.playerList }}</td>
+                <td>{{ game.start_time|date('d M Y (H:i:s)') }}</td>
                 <td>
-                    <a href="games/details/{{ game.id }}">
-                        Details
+                    <a class="whist-button whist-button-sm" href="games/details/{{ game.id }}">
+                        Play
                     </a>
                 </td>
             </tr>
         {% endfor %}
     </table>
-</div>
-</body>
-</html>
-
+    <br><br>
+    <table class="game-table">
+        <thead>
+            <tr>
+                <th colspan="4">
+                    <h1>Completed Games</h1>
+                </th>
+            </tr>
+            <tr>
+                <th>ID</th>
+                <th>Players</th>
+                <th>Time Created</th>
+                <th></th>
+            </tr>
+        </thead>
+        {%  for game in completeGames %}
+            <tr>
+                <td>{{ game.id }}</td>
+                <td>{{ game.playerList }}</td>
+                <td>{{ game.start_time|date('d M Y (H:i:s)') }}</td>
+                <td>
+                    <a class="whist-button whist-button-sm" href="games/details/{{ game.id }}">
+                        Score
+                    </a>
+                </td>
+            </tr>
+        {% endfor %}
+{% endblock %}
