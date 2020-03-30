@@ -6,6 +6,128 @@ h1, h2, h3, h4, h5, label, table {
     color: white;
     font-weight: 200;
 }
+.trump-choose {
+    font-size: 14pt;
+    padding-top:20px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.trump-choose .trump-suit {
+    background: white;
+    margin:10px;
+    display: inline-block;
+    width: 100%;
+    font-size: 50pt;
+    margin-top:0px;
+    border-radius: 0 0 10px 10px;
+}
+
+.trump-choose .trump-wording {
+    background: white;
+    padding-top:10px;
+    margin:10px;
+    margin-bottom:0px;
+    display: inline-block;
+    width: 100%;
+    border-radius: 10px 10px 0px 0px;
+}
+
+#trumps-hearts .trump-suit, #trumps-diamonds .trump-suit {
+    color: red;
+}
+
+.card {
+    text-align: left !important;
+    font-size: 20pt!important;
+    padding-left: 5px!important;
+    width:70px !important;
+    height:90px !important;
+
+}
+
+#guess-text {
+    color: red;
+    font-weight:bold;
+    font-size: 14pt;
+    margin-top:15px;
+    margin-bottom:15px;
+    display: inline-block;
+}
+
+/**
+ Log Box
+ */
+.game-log {
+    background-color: white;
+    border: 1px solid #777;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    height: 30px;
+    width:200px;
+    overflow: hidden;
+}
+
+.game-log.open {
+    height: 200px;
+    overflow-y: scroll;
+}
+
+.game-log h4 {
+    margin:0;
+    color:#259c9b;
+    font-size: 10pt;
+    padding: 8px;
+    font-weight:bold;
+    cursor: pointer;
+    border-bottom: 1px solid #777;
+}
+
+/**
+ Whist Games Table
+ */
+.playing-table {
+    background-color: #2b542c;
+    width:50%;
+    min-height: 250px;
+    height: 25%;
+    margin-left:25%;
+    margin-bottom:40px;
+}
+
+.card {
+    user-select: none; /* supported by Chrome and Opera */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    cursor: pointer;
+}
+
+.card.playable-card:hover {
+    background-color: rgb(177, 238, 248);
+    border-color:white;
+    margin-top: 0px;
+}
+.card.disabled:hover {
+    background-color: rgb(255, 175, 169);
+    border-color:white;
+}
+
+.card.disabled {
+    background-color: #ababab;
+}
+
+.card.raised {
+    /*margin-top: 0px;*/
+}
+
+.card .extra-text {
+    font-size: 10pt;
+    color: #777;
+    text-align: center;
+}
 
 .game-table h1 {
     color: #259c9b;
@@ -14,12 +136,12 @@ h1, h2, h3, h4, h5, label, table {
 
 .game-table {
     background-color: white;
-    color: #259c9b;
+    color: #777;
     text-align: center;
     width:100%;
-    border-radius: 10px;
+    font-size: 9pt;
+    margin-bottom: 0;
 }
-
 .game-table td, .game-table th {
     padding: 10px;
     text-align: center;
@@ -27,6 +149,62 @@ h1, h2, h3, h4, h5, label, table {
 }
 
 .game-table tr:last-child td {
+    padding-bottom: 20px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+#game-score-container {
+    border-radius: 10px;
+    background-color: white;
+    padding: 10px;
+}
+
+#game-score-container h4 {
+    color: #777;
+}
+
+/**
+ Card Style
+ */
+.card {
+    list-style-type: none;
+    width: 35px;
+    height: 45px;
+    background-color: white;
+    border: 1px solid #777;
+    margin: 5px;
+    float:left;
+    border-radius: 5px;
+    margin-top:10px;
+}
+
+.diams, .hearts {
+    color: red !important;
+}
+/**
+ Miscellaneous
+ */
+.games-table h1 {
+    color: #259c9b;
+    margin-top: 0;
+}
+
+.games-table {
+    background-color: white;
+    color: #259c9b;
+    text-align: center;
+    width:100%;
+    border-radius: 10px;
+}
+
+.games-table td, .games-table th {
+    padding: 10px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.games-table tr:last-child td {
     padding-bottom: 20px;
     text-align: center;
     vertical-align: middle;
@@ -54,6 +232,7 @@ h1, h2, h3, h4, h5, label, table {
     font-weight: 500;
     text-align: center;
     color: #259c9b;
+    padding: 5px;
 }
 
 .whist-button:hover {

@@ -2,8 +2,10 @@
 
 namespace App\Action;
 
+use App\Utility\ActionDrawer;
 use App\Utility\Database;
 use App\Utility\DataRequest;
+use App\Utility\GameDrawer;
 use Psr\Log\LoggerInterface;
 use Slim\Http\Request;
 use Slim\Http\Response;
@@ -61,6 +63,25 @@ class PlayerAction
                 'player' => DataRequest::getActivePlayer(),
             ]);
         return $response;
+    }
+
+    public function playCard(Request $request, Response $response, $arguments)
+    {
+        $player = DataRequest::getActivePlayer();
+        $gameId = $request->getParam('gameId');
+        $hand = ActionDrawer::startHandIfNeeded($this->database, $gameId, $player['id']);
+        $turn = DataRequest::whichTurnIsIt($gameId, $hand);
+        $this->database->q(
+            "INSERT INTO games_hands_turns (game_id, hand, player_id, turn, card) VALUES (?,?,?,?,?)",
+            [
+                $request->getParam('gameId'),
+                $hand,
+                $player['id'],
+                $turn,
+                $request->getParam('card')
+            ]
+        );
+
     }
 
     public function updatePlayerProcess(Request $request, Response $response, $arguments)

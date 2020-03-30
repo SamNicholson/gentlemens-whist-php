@@ -32,7 +32,9 @@
         </nav>
         <div class="row">
             <div class="col-sm-12 text-center">
-                <img src="{{ base_url() }}/img/logo.png">
+                {% if not hideLogo %}
+                    <img src="{{ base_url() }}/img/logo.png">
+                {% endif %}
             </div>
         </div>
         {% block content %}{% endblock %}

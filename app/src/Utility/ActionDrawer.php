@@ -1,8 +1,6 @@
 <?php
 
-
 namespace App\Utility;
-
 
 class ActionDrawer
 {
@@ -10,112 +8,32 @@ class ActionDrawer
     private static $playerId;
     private static $gameId;
 
-    public static function drawActions(Database $database, $gameId, $playerId)
+    public static function getActionData(Database $database, $gameId, $playerId)
     {
-        /**
-         * Done - Submit Guess
-         * Done - Submit number of wins
-         * Done - Mark Hand as Complete/Deal
-         * TODO Select Trumps
-         * TODO Mark game as complete
-         */
-        $actionHTML = '';
-        //Ensure that a hand is active!
-        $currentHand = self::startHandIfNeeded($database, $gameId, $playerId);
-
-        $currentHandData = $database->q(
-            "SELECT * FROM games_hands_players WHERE game_id = ? AND player_id = ? AND hand = ?",
-            [
-                $gameId,
-                $playerId,
-                $currentHand
-            ]
-        );
-        self::$handId = $currentHand;
-        self::$gameId = $gameId;
-        self::$playerId = $playerId;
-        $actionHTML .= '<h4>Currently on Hand ' . $currentHand . '</h4>';
-        $actionHTML .= self::submitGuess($currentHandData);
-        $actionHTML .= self::submitWins($currentHandData);
-        $actionHTML .= self::nextHand($database, $currentHand, $currentHandData);
-
-        return $actionHTML;
-    }
-
-    private static function createFormat($valueType, $wording)
-    {
-        return '
-            <a href="javascript:populateAndShowOverlay(
-                \'' . self::$gameId . '\', 
-                \'' . self::$handId . '\', 
-                \'' . self::$playerId . '\', 
-                \'' . '' . self::$handId . ' Card(s):<br> ' . $wording . '\', 
-                \'' . $valueType . '\', 
-                \'\',
-            )" class="btn btn-primary">' . $wording . '</a>';
-    }
-
-    public static function nextHand($database, $currentHand, $currentHandData)
-    {
-        foreach ($currentHandData as $dataRow) {
-            if ($dataRow['value_type'] == 'won') {
-
-                //We do a check to ensure that all players have submitted their guesses
-                $ableToMoveOn = $database->queryRow(
-                    "SELECT IF(
-                                   count(DISTINCT games_hands_players.player_id) = count(DISTINCT games_players.player_id),
-                                   true,
-                                   false
-                                   ) AS result
-                        FROM games_hands_players
-                                 LEFT JOIN games_players ON games_hands_players.game_id = games_players.game_id
-                        
-                        WHERE games_players.game_id = ?
-                          AND hand = ?
-                          AND value_type = 'won'",
-                    [
-                        self::$gameId,
-                        self::$handId
-                    ]
-                );
-                if ($ableToMoveOn['result']) {
-                    return self::createFormat('complete', 'Complete Round');
-                } else {
-                    return 'Waiting on other players';
+        $nextAction = GameState::whatIsMyNextAction($database, $gameId);
+        switch ($nextAction) {
+            case 'guess':
+                $action = 'guess';
+                $hand = ActionDrawer::startHandIfNeeded($database, $gameId, $playerId);
+                $cantGuess = DataRequest::whatNumberCannotBeGuessed($gameId, $hand);
+                return ['action' => $nextAction, 'guess_cant_say' => $cantGuess];
+                break;
+            case 'trumps':
+                $action = 'trumps';
+                break;
+            case 'card':
+                $action = 'card';
+                break;
+            case 'waiting':
+                $waitingFor = DataRequest::whichPlayersTurnIsIt($gameId);
+                $player = DataRequest::getPlayer($waitingFor);
+                if (empty($player)) {
+                    $player['name'] = ' trumps to be chosen';
                 }
-
-            }
+                return ['action' => 'waiting', 'for' => $player['name']];
+                break;
         }
-        return '';
-    }
-
-    public static function submitGuess($currentHandData)
-    {
-        foreach ($currentHandData as $dataRow) {
-            if ($dataRow['value_type'] == 'guess') {
-                return '';
-            }
-        }
-        return self::createFormat('guess', 'Submit Guess');
-    }
-
-    public static function submitWins($currentHandData)
-    {
-        foreach ($currentHandData as $dataRow) {
-            if ($dataRow['value_type'] == 'won') {
-                return '';
-            }
-        }
-        $guessFound = false;
-        foreach ($currentHandData as $dataRow) {
-            if ($dataRow['value_type'] == 'guess') {
-                $guessFound = true;
-            }
-        }
-        if ($guessFound) {
-            return self::createFormat('won', 'Submit Wins');
-        }
-        return '';
+        return ['action' => $nextAction];
     }
 
     public static function startHandIfNeeded(Database $database, $gameId, $playerId)
@@ -133,10 +51,10 @@ class ActionDrawer
                     $gameId
                 ]
             );
-            if ($lastHand['hand'] == '1') {
-                echo 'game ended';
-                die;
-            }
+//            if ($lastHand['hand'] == '1') {
+//                echo 'game ended';
+//                die;
+//            }
             if (empty($lastHand)) {
                 $database->q(
                     "INSERT INTO games_hands (game_id, hand, trumps, complete) VALUE (?,?,?,?)",
@@ -151,11 +69,10 @@ class ActionDrawer
                 return 13;
             } else {
                 $database->q(
-                    "INSERT INTO games_hands (game_id, hand, trumps, complete) VALUE (?,?,?,?)",
+                    "INSERT INTO games_hands (game_id, hand,  complete) VALUE (?,?,?)",
                     [
                         $gameId,
                         $lastHand['hand'] - 1,
-                        self::getRandomTrumps(),
                         0
                     ]
                 );

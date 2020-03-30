@@ -73,12 +73,15 @@ final class HomeAction
         );
         $gameId = $this->database->getInsertId();
         foreach ($request->getParam('players') as $player) {
+
+
             $this->database->q(
-                "INSERT INTO games_players (game_id, player_id, nickname) VALUES (?,?,?)",
+                "INSERT INTO games_players (game_id, player_id, nickname, `order`) VALUES (?,?,?,?)",
                 [
                     $gameId,
                     $player,
-                    $request->getParam('nickname')[$player]
+                    $request->getParam('nickname')[$player],
+                    $request->getParam('order')[$player],
                 ]
             );
         }

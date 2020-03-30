@@ -16,14 +16,7 @@ class GameDrawer
 
         self::getGuesses($database, $gameId);;
         self::getWins($database, $gameId);
-        $players = $database->q(
-            "SELECT *, games_players.nickname FROM players 
-                    LEFT JOIN games_players ON players.id = games_players.player_id
-                    WHERE game_id = ?",
-            [
-                $gameId
-            ]
-        );
+        $players = DataRequest::getPlayersInGame($gameId);
         $gameRows = $database->q(
             "SELECT * FROM games_hands WHERE game_id = ?",
             [
@@ -36,8 +29,61 @@ class GameDrawer
             $trumps[$row['hand']] = $row['trumps'];
             $completedHands[$row['hand']] = $row['complete'];
         }
+        $currentPlayerTurn = DataRequest::whichPlayersTurnIsIt($gameId);
+        $html  = '<div class="row">
+                    <div class="col-md-6">';
+        self::drawScoreTable($database, $gameId, $players, $currentPlayerTurn, $completedHands, $hands, $trumps, $html);
+        $html .= '</div>';
+        self::drawTurnsTable($database, $gameId, $players, $trumps, $currentPlayerTurn, $html);
+        $html .= '</div>';
+        return $html;
+    }
 
-        $html = '<table class="table table-striped table-bordered ">
+    public static function drawTurnsTable(Database $database, $gameId, $players, $trumps, $currentPlayerTurn, &$html)
+    {
+        $currentHand = ActionDrawer::startHandIfNeeded($database, $gameId, $_SESSION['user']);
+        $currentTurn = DataRequest::whichTurnIsIt($gameId, $currentHand);
+        $cardsPlayed = DataRequest::getCardsInHand($gameId, $currentHand);
+        $html .= '<div class="col-md-6">
+            <h4>' . $currentHand . ' Card Draw</h4>
+            <h4>Turn ' . $currentTurn . '</h4>';
+        $html .= '<table class="table game-table table-striped"><head>';
+        $contentHTML = '';
+
+        $html .= '<tr>';
+        $html .= '<th></th>';
+        foreach ($players as $player) {
+            $thisPlayersTurn = $player['id'] == $currentPlayerTurn;
+            $playerColor = $thisPlayersTurn ? 'success' : '';
+            $html .= '<th class="' . $playerColor . '">' . $player['nickname'] . ' <br><i>' . $player['name'] . ($thisPlayersTurn ? '<br><i>(Turn)</i>' : '') . '</th>';
+        }
+        $html .= '</tr>';
+
+
+        for ($i = 1; $i <= $currentHand; $i++) {
+            //Content HTML
+            $turnColor = $currentTurn == $i ? 'warning' : '';
+            $contentHTML .= '<tr>';
+            $contentHTML .= '<td class="' . $turnColor . '">' . $i;
+                foreach ($players as $player) {
+                    if (isset($cardsPlayed[$player['id']][$i])) {
+                        $contentHTML .= '<td class="' . $turnColor . '">' . CardDrawer::drawCard($cardsPlayed[$player['id']][$i]) . '</td>';
+                    } else {
+                        $contentHTML .= '<td class="' . $turnColor . '"></td>';
+                    }
+                }
+            $contentHTML .= '</tr>';
+        }
+        $html .= '</head>';
+        $html .= '<tbody>' . $contentHTML . '</tbody>';
+
+        $html .= '</table>';
+        $html .= '</div>';
+    }
+
+    public static function drawScoreTable(Database $database, $gameId, $players, $currentPlayerTurn, $completedHands, $hands, $trumps, &$html)
+    {
+        $html .= '<table class="table table-striped table-bordered game-table">
                     <thead>
                         <tr>
                             <th rowspan="2">Hand</th>
@@ -46,7 +92,9 @@ class GameDrawer
                         ';
         $secondHTML = '<tr>';
         foreach ($players as $player) {
-            $html .= '<th colspan="2">' . $player['nickname'] . ' <br><i>' . $player['name'] . '</i></th>';
+            $thisPlayersTurn = $player['id'] == $currentPlayerTurn;
+            $playerColor = $thisPlayersTurn ? 'success' : '';
+            $html .= '<th colspan="2" class="' . $playerColor . '">' . $player['nickname'] . ' <br><i>' . $player['name'] . ($thisPlayersTurn ? '<br><i>(Turn)</i>' : '') . '</th>';
             $secondHTML .= '<th>Guess</th><th>Score</th>';
         }
         $secondHTML .= '</tr>';
@@ -59,15 +107,20 @@ class GameDrawer
             } else {
                 $color = '';
             }
+            $trumpColor = '';
+            if (isset($trumps[$hand])) {
+                if ($trumps[$hand] == 'diamonds' || $trumps[$hand] == 'hearts') {
+                    $trumpColor = 'color:red;';
+                }
+            }
             $html .= '
                 <tr class="' . $color . '">
                     <td>'  . $hand . '</td>
-                    <td>'  . (isset($trumps[$hand]) ? $trumps[$hand] : '' ). '</td>
+                    <td><span style="font-size:20pt;' . $trumpColor . '">'  . (isset($trumps[$hand]) ? CardDrawer::suitToHTML($trumps[$hand]) : '' ). '</span></td>
             ';
             foreach ($players as $player) {
                 $html .= self::drawPlayerHandBox($player, $hand);
             }
-
             $html .= '</tr>';
         }
 
@@ -82,10 +135,10 @@ class GameDrawer
             $html .= '<td colspan="' . (count($players) * 2) . '" class="text-center">Game Not Complete</td>';
         }
 
-        return $html . '</tbody></<table>';
+        $html .= '</tbody></table>';
     }
 
-    private static function getGuesses(Database $database, $gameId)
+    public static function getGuesses(Database $database, $gameId)
     {
         $rows = $database->q("SELECT * FROM games_hands_players WHERE game_id = ? AND value_type = 'guess'", [$gameId]);
         $guesses = [];
@@ -99,6 +152,7 @@ class GameDrawer
             $guesses[$row['hand']][$row['player_id']] = $row['value'];
         }
         self::$guesses = $guesses;
+        return $guesses;
     }
 
     private static function drawPlayerHandBox($player, $hand)

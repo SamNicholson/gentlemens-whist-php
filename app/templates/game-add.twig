@@ -1,24 +1,44 @@
-<html>
-<head>
-    <meta charset="utf-8"/>
-    <title>Slim 3</title>
-    <link href='//fonts.googleapis.com/css?family=Lato:300' rel='stylesheet' type='text/css'>
-    <link href='{{ base_url() }}/css/style.css' rel='stylesheet' type='text/css'>
-</head>
-<body>
-<form action="{{ base_url() }}/games/create/process" method="post">
-    <h1>Create Game</h1>
-    <br><br>
-    Players
-    <br><br>
-    {%  for player in players %}
-        <label>
-            <input type="checkbox" name="players[]" value="{{ player.id }}"> {{ player.name }} <input type="text" name="nickname[{{ player.id }}]" placeholder="Nickname"><br><br>
-        </label>
-    {% endfor %}
-    <br><br>
-    <input type="submit" value="Create">
-</form>
-</body>
-</html>
+{% extends 'base-container.twig' %}
+{% block content %}
+    <form action="{{ base_url() }}/games/create/process" method="post">
+        <h1 class="text-center">Create Game</h1>
+        <div class="row">
+            <div class="col-sm-12 col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
+                <table class="table games-table table-responsive">
+                    <thead>
+                    <tr>
+                        <th>Include</th>
+                        <th>Player Name</th>
+                        <th>Nickname</th>
+                        <th class="col-md-1">Order</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {%  for key, player in players %}
+                        <label for="players[]">
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="checkbox-inline" name="players[]" value="{{ player.id }}">
+                                </td>
+                                <td>
+                                    {{ player.name }}
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control input-sm" name="nickname[{{ player.id }}]" placeholder="Nickname">
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control input-sm" name="order[{{ player.id }}]" placeholder="Order" value="{{ key + 1 }}">
+                                </td>
+                            </tr>
+                        </label>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <p class="text-center">
+                    <input type="submit" value="Create" class="whist-button">
+                </p>
+            </div>
+        </div>
 
+    </form>
+{% endblock %}

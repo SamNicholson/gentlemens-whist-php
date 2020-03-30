@@ -7,7 +7,9 @@ namespace App\Action;
 use App\Utility\ActionDrawer;
 use App\Utility\CardDrawer;
 use App\Utility\Database;
+use App\Utility\DataRequest;
 use App\Utility\GameDrawer;
+use MongoDB\Driver\Query;
 use Psr\Log\LoggerInterface;
 use Slim\Http\Request;
 use Slim\Http\Response;
@@ -55,7 +57,8 @@ class GameAction
     public function actions(Request $request, Response $response, $args)
     {
         $game = $this->database->queryRow("SELECT * FROM games WHERE id = ?", [$args['gameId']]);
-        return ActionDrawer::drawActions($this->database, $args['gameId'], $_SESSION['user']);
+        $data = ActionDrawer::getActionData($this->database, $args['gameId'], $_SESSION['user']);
+        return $response->withJson($data);
     }
 
     public function cards(Request $request, Response $response, $args)
@@ -74,13 +77,25 @@ class GameAction
                         $request->getParam('hand')
                     ]
             );
+        } elseif ($request->getParam('valueType') == 'trumps') {
+            $hand = ActionDrawer::startHandIfNeeded($this->database, $request->getParam('gameId'), $_SESSION['user']);
+            $this->database->q(
+                "UPDATE games_hands SET trumps = ? WHERE game_id = ? AND hand = ?",
+                    [
+                        $request->getParam('trumps'),
+                        $request->getParam('gameId'),
+                        $hand
+                    ]
+            );
         } else {
+            $hand = ActionDrawer::startHandIfNeeded($this->database, $request->getParam('gameId'), $_SESSION['user']);
+            $playerId = $_SESSION['user'];
             $this->database->q(
                 "INSERT INTO games_hands_players (game_id, hand, player_id, value_type, value) VALUES (?,?,?,?,?)",
                 [
                     $request->getParam('gameId'),
-                    $request->getParam('hand'),
-                    $request->getParam('playerId'),
+                    $hand,
+                    $playerId,
                     $request->getParam('valueType'),
                     $request->getParam('value')
                 ]

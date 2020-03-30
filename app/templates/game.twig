@@ -1,46 +1,93 @@
 {% extends 'base-container.twig' %}
-
+{% set hideLogo = true %}
 {% block content %}
-        <h4>Game Details: {{ game.name }}</h4>
-        <br><br>
+{#<h4>Game Details: {{ game.name }}</h4>#}
+
+    <div class="row">
+    <div class="col-md-6 col-md-offset-3">
+    <div id="action-waiting" class="hidden text-center">
+        <img src="{{ base_url() }}/img/loader.gif">
+        <h3 id="waiting-for-text"></h3>
+    </div>
+    </div>
+    </div>
         <div class="row">
-            <div class="col-md-4 col-lg-3">
-                <div id="game-actions-container">
-                </div>
-            </div>
-            <div class="col-md-2 col-lg-3">
+            <div class="col-md-12">
                 <div id="game-cards-container" class="playingCards rotateHand">
                 </div>
             </div>
-            <div class="col-md-6 col-lg-6">
-                <div id="game-score-container">
+        </div>
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3">
+                <div id="action-trumps" class="hidden">
+                    <h3 class="text-center">Choose Trumps:</h3>
+                    <div class="row">
+                        <div class="col-md-3 trump-choose" id="trumps-diamonds" data-suit="diamonds">
+                            <span class="trump-wording">
+                                Choose
+                            </span>
+                            <span class="trump-suit">
+                                &diams;
+                            </span>
+                        </div>
+                        <div class="col-md-3 trump-choose" id="trumps-spades" data-suit="spades">
+                            <span class="trump-wording">
+                                Choose
+                            </span>
+                            <span class="trump-suit">
+                                &spades;
+                            </span>
+                        </div>
+                        <div class="col-md-3 trump-choose" id="trumps-hearts" data-suit="hearts">
+                            <span class="trump-wording">
+                                Choose
+                            </span>
+                            <span class="trump-suit">
+                                &hearts;
+                            </span>
+                        </div>
+                        <div class="col-md-3 trump-choose" id="trumps-clubs" data-suit="clubs">
+                            <span class="trump-wording">
+                                Choose
+                            </span>
+                            <span class="trump-suit">
+                                &clubs;
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div id="action-guess" class="hidden">
+                    <h3 class="text-center">Place your guess:</h3>
+                    <div class="row">
+                        <div class="col-md-12 text-center">
+                            <input type="number" id="guess-value">
+                            <br>
+                            <span id="guess-text" class="hidden">test</span>
+                            <br>
+                            <button type="button" class="whist-button" id="submit-guess">
+                                Place Guess
+                            </button>
+                            <br>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div id="game-overlay" class="modal" tabindex="-1" role="dialog">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <p id="game-overlay-type"></p>
-                        <input type="hidden" id="game-overlay-game-id" name="gameId">
-                        <input type="hidden" id="game-overlay-hand" name="hand">
-                        <input type="hidden" id="game-overlay-player-id" name="playerId">
-                        <input type="hidden" id="game-overlay-value-type" name="valueType">
-                        <input type="text" id="game-overlay-value" name="value">
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary submit-data">Submit</button>
-                    </div>
+        <br><br>
+        <div class="row">
+            <div class=" col-md-12">
+                <div id="game-score-container" class="table-responsive">
                 </div>
+            </div>
+        </div>
+        <div class="game-log">
+            <h4>Game Events</h4>
+            <div class="game-log-messages">
             </div>
         </div>
         <script type="text/javascript">
-            var notAllowedValue = '';
+            var notAllowedValue = 1000;
+            var cardProcessing = false;
 
             $(function() {
                 setInterval(
@@ -58,7 +105,36 @@
                 );
                 function updateActions() {
                     $.get('../../games/actions/{{ game.id }}', function(response) {
-                        $('#game-actions-container').html(response);
+                        switch (response['action']) {
+                            case 'trumps':
+                                $('#action-trumps').removeClass('hidden');
+
+                                $('#action-guess').addClass('hidden');
+                                $('#action-waiting').addClass('hidden');
+                                break;
+                            case 'guess':
+                                $('#action-guess').removeClass('hidden');
+
+                                $('#action-trumps').addClass('hidden');
+                                $('#action-waiting').addClass('hidden');
+                                if (response['guess_cant_say'] != 1000) {
+                                    notAllowedValue = response['guess_cant_say'];
+                                }
+                                break;
+                            case 'waiting':
+                                var waitingFor = response['for'];
+                                $('#action-waiting').removeClass('hidden');
+
+                                $('#action-trumps').addClass('hidden');
+                                $('#action-guess').addClass('hidden');
+                                $('#waiting-for-text').html('Waiting for ' + waitingFor);
+                                break;
+                            case 'card':
+                                $('#action-trumps').addClass('hidden');
+                                $('#action-waiting').addClass('hidden');
+                                $('#action-guess').addClass('hidden');
+                                break;
+                        }
                     });
                 }
                 setInterval(
@@ -66,56 +142,80 @@
                     1000
                 );
                 function updateCards() {
-                    $.get('../../games/cards/{{ game.id }}', function(response) {
-                        $('#game-cards-container').html(response);
-                    });
+                    if (!cardProcessing) {
+                        $.get('../../games/cards/{{ game.id }}', function(response) {
+                            $('#game-cards-container').html(response);
+                        });
+                    }
                 }
+
                 $('.submit-data').on('click', function() {
                     submitData();
                 });
-            });
 
-            function submitData()
-            {
-                $.get( "../../games/input", {
-                    gameId: $('#game-overlay-game-id').val(),
-                    hand: $('#game-overlay-hand').val(),
-                    playerId: $('#game-overlay-player-id').val(),
-                    valueType: $('#game-overlay-value-type').val(),
-                    value: $('#game-overlay-value').val(),
-                })
-                    .done(function( data ) {
-                        $('#game-overlay').modal('hide');
-                    });
-            }
+                $('#game-cards-container').on("click", ".playable-card", function() {
+                    if (!cardProcessing) {
+                        var gameId = $('#game-cards-container .hand').data('gameid');
+                        var cardValue = $(this).data('card');
+                        cardProcessing = true;
+                        $.get("../../players/update/play-card", {
+                            gameId: gameId,
+                            card: cardValue
+                        })
+                            .done(function (data) {
+                                setTimeout(function () {
+                                    cardProcessing = false;
+                                }, 1000);
+                                console.log('played card');
+                            });
+                    }
+                });
 
-            function sendComplete(gameId, handId)
-            {
-                $.get( "../../games/input", {
-                    gameId:     gameId,
-                    hand:       handId,
-                    valueType: 'complete'
-                })
-                    .done(function( data ) {
-                        $('#game-overlay').modal('hide');
-                    });
-            }
+                $('.game-log').on('click', function(){
+                    if ($(this).hasClass('open')) {
+                        $('.game-log').removeClass('open');
+                    } else {
+                        $('.game-log').addClass('open');
+                    }
+                });
 
-            function populateAndShowOverlay(gameId, handId, playerId, text, valueType, value)
-            {
-                if (valueType == 'complete' ) {
-                    sendComplete(gameId, handId);
+                $('.trump-choose').on('click', function() {
+                    sendTrumps($(this).data('suit'));
+                });
+
+                function sendTrumps(suit)
+                {
+                    $.get( "../../games/input", {
+                        gameId:     {{ game.id }},
+                        valueType: 'trumps',
+                        trumps: suit
+                    })
+                        .done(function( data ) {
+                            $('#action-trumps').addClass('hidden');
+                        });
                 }
-                $('#game-overlay-type').html(text);
-                $('#game-overlay-game-id').val(gameId);
-                $('#game-overlay-hand').val(handId);
-                $('#game-overlay-player-id').val(playerId);
 
-                $('#game-overlay-value-type').val(valueType);
-                $('#game-overlay-value').val(value);
+                $('#submit-guess').on('click', function() {
+                    sendGuess();
+                });
 
-                $('#game-overlay').modal('show');
-
-            }
+                function sendGuess()
+                {
+                    var guessValue = $('#guess-value').val();
+                    if (guessValue != notAllowedValue) {
+                        $.get( "../../games/input", {
+                            gameId:     {{ game.id }},
+                            valueType: 'guess',
+                            value: guessValue
+                        })
+                            .done(function( data ) {
+                                $('#action-guess').addClass('hidden');
+                            });
+                    } else {
+                        $('#guess-text').html('Cannot say ' + guessValue);
+                        $('#guess-text').removeClass('hidden');
+                    }
+                }
+            });
         </script>
 {% endblock %}

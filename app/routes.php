@@ -42,3 +42,6 @@ $app->get('/players/update', App\Action\PlayerAction::class . ':updatePlayer')
 
 $app->post('/players/update/process', App\Action\PlayerAction::class . ':updatePlayerProcess')
     ->setName('addPlayerProcess');
+
+$app->get('/players/update/play-card', App\Action\PlayerAction::class . ':playCard')
+    ->setName('playCard');
