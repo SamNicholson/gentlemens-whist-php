@@ -6,9 +6,9 @@ namespace App\Utility;
 
 class GameDrawer
 {
-    private static $guesses;
-    private static $wins;
-    private static $scores = [];
+    public static $guesses;
+    public static $wins;
+    public static $scores = [];
 
     public static function drawGame(Database $database, $gameId)
     {

@@ -27,24 +27,18 @@ class DataRequest
                 $gameId
             ]
         );
-        //TODO update the scores table!
-        //        $hands = [13,12,11,10,9,8,7,6,5,4,3,2,1];
-//        $players = DataRequest::getPlayersInGame($gameId);
-//        foreach ($hands as $hand) {
-//            foreach ($players as $player) {
-//                $guess = isset(self::$guesses[$hand][$player['id']]) ? self::$guesses[$hand][$player['id']] : null;
-//                $won = isset(self::$wins[$hand][$player['id']]) ? self::$wins[$hand][$player['id']] : null;
-//                if (!isset(self::$scores[$player['id']])) {
-//                    self::$scores[$player['id']] = 0;
-//                }
-//                $score = ($won === $guess && !is_null($won) ? $won + 10 : $won);
-//                self::$scores[$player['id']] += $score;
-//                return '
-//            <td>' . $guess . '</td>
-//            <td>' . ($won === $guess && !is_null($won) ? $won + 10 : $won) . '</td>
-//        ';
-//            }
-//        }
+        $scoreHTML = GameDrawer::drawGame(self::$database, $gameId);
+        $players = self::getPlayersInGame($gameId);
+        foreach ($players as $player) {
+            self::$database->q(
+                "INSERT IGNORE INTO games_scores (game_id, player, score) VALUES (?,?,?)",
+                [
+                    $gameId,
+                    $player['id'],
+                    GameDrawer::$scores[$player['id']]
+                ]
+            );
+        }
     }
 
     public static function getAllPlayers()
