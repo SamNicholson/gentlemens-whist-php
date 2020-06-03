@@ -51,10 +51,10 @@ class ActionDrawer
                     $gameId
                 ]
             );
-//            if ($lastHand['hand'] == '1') {
-//                echo 'game ended';
-//                die;
-//            }
+            if ($lastHand['hand'] == '1') {
+                //Game is complete
+                DataRequest::completeGame($gameId);
+            }
             if (empty($lastHand)) {
                 $database->q(
                     "INSERT INTO games_hands (game_id, hand, trumps, complete) VALUE (?,?,?,?)",
