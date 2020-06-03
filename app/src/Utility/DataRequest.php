@@ -27,18 +27,18 @@ class DataRequest
                 $gameId
             ]
         );
-        $scoreHTML = GameDrawer::drawGame(self::$database, $gameId);
-        $players = self::getPlayersInGame($gameId);
-        foreach ($players as $player) {
-            self::$database->q(
-                "INSERT IGNORE INTO games_scores (game_id, player, score) VALUES (?,?,?)",
-                [
-                    $gameId,
-                    $player['id'],
-                    GameDrawer::$scores[$player['id']]
-                ]
-            );
-        }
+//        $scoreHTML = GameDrawer::drawGame(self::$database, $gameId);
+//        $players = self::getPlayersInGame($gameId);
+//        foreach ($players as $player) {
+//            self::$database->q(
+//                "INSERT IGNORE INTO games_scores (game_id, player, score) VALUES (?,?,?)",
+//                [
+//                    $gameId,
+//                    $player['id'],
+//                    GameDrawer::$scores[$player['id']]
+//                ]
+//            );
+//        }
     }
 
     public static function getAllPlayers()
