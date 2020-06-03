@@ -21,24 +21,27 @@ class DataRequest
 
     public static function completeGame($gameId)
     {
-        self::$database->q(
-            "UPDATE games SET completed = 1 WHERE id = ?",
-            [
-                $gameId
-            ]
-        );
-//        $scoreHTML = GameDrawer::drawGame(self::$database, $gameId);
-//        $players = self::getPlayersInGame($gameId);
-//        foreach ($players as $player) {
-//            self::$database->q(
-//                "INSERT IGNORE INTO games_scores (game_id, player, score) VALUES (?,?,?)",
-//                [
-//                    $gameId,
-//                    $player['id'],
-//                    GameDrawer::$scores[$player['id']]
-//                ]
-//            );
-//        }
+        $game = self::getGameInfo($gameId);
+        if (empty($game['completed'])) {
+            self::$database->q(
+                "UPDATE games SET completed = 1 WHERE id = ?",
+                [
+                    $gameId
+                ]
+            );
+            $scoreHTML = GameDrawer::drawGame(self::$database, $gameId);
+            $players = self::getPlayersInGame($gameId);
+            foreach ($players as $player) {
+                self::$database->q(
+                    "INSERT IGNORE INTO games_scores (game_id, player, score) VALUES (?,?,?)",
+                    [
+                        $gameId,
+                        $player['id'],
+                        GameDrawer::$scores[$player['id']]
+                    ]
+                );
+            }
+        }
     }
 
     public static function getAllPlayers()
