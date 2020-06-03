@@ -22,7 +22,7 @@ class DataRequest
     public static function completeGame($gameId)
     {
         self::$database->q(
-            "UPDATE games SET complete = 1 WHERE game_id = ",
+            "UPDATE games SET complete = 1 WHERE id = ?",
             [
                 $gameId
             ]
