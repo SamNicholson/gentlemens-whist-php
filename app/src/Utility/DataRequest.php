@@ -415,8 +415,8 @@ class DataRequest
 
     public static function getLeadingSuitForTurn($gameId, $hand, $turn)
     {
+        $players = DataRequest::getPlayersInGame($gameId);
         if ($hand == 13) {
-            $players = DataRequest::getPlayersInGame($gameId);
             $turnWinners = DataRequest::calculateTurnWinners($gameId, $hand, $players[0]['id']);
         } else {
             $turnWinners = DataRequest::calculateTurnWinners($gameId, $hand, DataRequest::whoWonHand($gameId, $hand + 1));
@@ -427,6 +427,9 @@ class DataRequest
         }
         if (isset($turnWinners[$turn - 1])) {
             return CardDrawer::whatSuitIsCard($cards[$turnWinners[$turn - 1]]);
+        }
+        if ($turn == 1) {
+            return CardDrawer::whatSuitIsCard($cards[$players[0]['id']]);
         }
     }
 

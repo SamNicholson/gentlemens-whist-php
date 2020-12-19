@@ -71,6 +71,22 @@ class PlayerAction
         $gameId = $request->getParam('gameId');
         $hand = ActionDrawer::startHandIfNeeded($this->database, $gameId, $player['id']);
         $turn = DataRequest::whichTurnIsIt($gameId, $hand);
+
+        //Add protection to stop the same card being played in the same game twice!
+        $alreadyPlayed = $this->database->q(
+            "SELECT * FROM games_hands_turns WHERE game_id = ? AND hand = ? AND card = ?",
+            [
+                $gameId,
+                $hand,
+                $request->getParam('card')
+            ]
+        );
+
+        //We somehow are trying to play the same card again - DO NOT allow it
+        if (!empty($alreadyPlayed)) {
+            return;
+        }
+
         $this->database->q(
             "INSERT INTO games_hands_turns (game_id, hand, player_id, turn, card) VALUES (?,?,?,?,?)",
             [

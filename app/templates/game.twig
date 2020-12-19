@@ -108,13 +108,12 @@
                         switch (response['action']) {
                             case 'trumps':
                                 $('#action-trumps').removeClass('hidden');
-
                                 $('#action-guess').addClass('hidden');
                                 $('#action-waiting').addClass('hidden');
+                                notAllowedValue = 1000;
                                 break;
                             case 'guess':
                                 $('#action-guess').removeClass('hidden');
-
                                 $('#action-trumps').addClass('hidden');
                                 $('#action-waiting').addClass('hidden');
                                 if (response['guess_cant_say'] != 1000) {
@@ -124,15 +123,16 @@
                             case 'waiting':
                                 var waitingFor = response['for'];
                                 $('#action-waiting').removeClass('hidden');
-
                                 $('#action-trumps').addClass('hidden');
                                 $('#action-guess').addClass('hidden');
                                 $('#waiting-for-text').html('Waiting for ' + waitingFor);
+                                notAllowedValue = 1000;
                                 break;
                             case 'card':
                                 $('#action-trumps').addClass('hidden');
                                 $('#action-waiting').addClass('hidden');
                                 $('#action-guess').addClass('hidden');
+                                notAllowedValue = 1000;
                                 break;
                         }
                     });
