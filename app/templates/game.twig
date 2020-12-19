@@ -5,26 +5,32 @@
 
     <div class="row">
     <div class="col-md-6 col-md-offset-3">
-    <div id="action-waiting" class="hidden text-center">
-        <img src="{{ base_url() }}/img/loader.gif">
-        <h3 id="waiting-for-text"></h3>
+    <div id="action-waiting" class="text-center">
+        <div class="loading-content">
+            <img src="{{ base_url() }}/img/loader.gif">
+            <h3 id="waiting-for-text">Loading</h3>
+        </div>
+        <div id="loading-background" class="completely-black"></div>
     </div>
     </div>
     </div>
         <div class="row">
             <div class="col-md-12">
-                <div id="game-cards-container" class="playingCards rotateHand">
+                <div id="game-cards-container-area">
+                    <div id="game-cards-container" class="playingCards rotateHand" style="display:none;">
+                        {{ cardHTML|raw }}
+                    </div>
                 </div>
             </div>
         </div>
         <div class="row">
-            <div class="col-md-6 col-md-offset-3">
-                <div id="action-trumps" class="hidden">
+            <div class="col-md-12 text-center">
+                <div id="action-trumps" class="" style="display:none;">
                     <h3 class="text-center">Choose Trumps:</h3>
-                    <div class="row">
+                    <div class="row" style="margin-left: 5%;">
                         <div class="col-md-3 trump-choose" id="trumps-diamonds" data-suit="diamonds">
                             <span class="trump-wording">
-                                Choose
+                                Diamonds
                             </span>
                             <span class="trump-suit">
                                 &diams;
@@ -32,7 +38,7 @@
                         </div>
                         <div class="col-md-3 trump-choose" id="trumps-spades" data-suit="spades">
                             <span class="trump-wording">
-                                Choose
+                                Spades
                             </span>
                             <span class="trump-suit">
                                 &spades;
@@ -40,7 +46,7 @@
                         </div>
                         <div class="col-md-3 trump-choose" id="trumps-hearts" data-suit="hearts">
                             <span class="trump-wording">
-                                Choose
+                                Hearts
                             </span>
                             <span class="trump-suit">
                                 &hearts;
@@ -48,7 +54,7 @@
                         </div>
                         <div class="col-md-3 trump-choose" id="trumps-clubs" data-suit="clubs">
                             <span class="trump-wording">
-                                Choose
+                                Clubs
                             </span>
                             <span class="trump-suit">
                                 &clubs;
@@ -56,7 +62,7 @@
                         </div>
                     </div>
                 </div>
-                <div id="action-guess" class="hidden">
+                <div id="action-guess" class="" style="display:none;">
                     <h3 class="text-center">Place your guess:</h3>
                     <div class="row">
                         <div class="col-md-12 text-center">
@@ -74,21 +80,22 @@
             </div>
         </div>
         <br><br>
-        <div class="row">
-            <div class=" col-md-12">
-                <div id="game-score-container" class="table-responsive">
-                </div>
-            </div>
+        <div id="game-score-container">
         </div>
-        <div class="game-log">
+        <div class="game-log open">
             <h4>Game Events</h4>
             <div class="game-log-messages">
+                {% for event in events %}
+                    <div class="game-event">
+                         <b>{{ event['name'] }}</b> ({{ event['event_time']|date('H:i:s') }}) - {{ event['event']|raw }}
+                    </div>
+                {% endfor %}
             </div>
         </div>
         <script type="text/javascript">
             var notAllowedValue = 1000;
             var cardProcessing = false;
-
+            var firstTimeLoad = true;
             $(function() {
                 setInterval(
                     updateScore,
@@ -105,38 +112,79 @@
                 );
                 function updateActions() {
                     $.get('../../games/actions/{{ game.id }}', function(response) {
+                        if (firstTimeLoad) {
+                            $('#loading-background').animate({
+                                opacity: 0.35,
+                            }, 500, function() {
+                                updateActions()
+                            });
+                            $('#game-cards-container').fadeIn();
+                            firstTimeLoad = false;
+                            return;
+                        }
                         switch (response['action']) {
                             case 'trumps':
-                                $('#action-trumps').removeClass('hidden');
-                                $('#action-guess').addClass('hidden');
-                                $('#action-waiting').addClass('hidden');
+                                showTrumps();
+                                hideGuess();
+                                hideLoader();
                                 notAllowedValue = 1000;
                                 break;
                             case 'guess':
-                                $('#action-guess').removeClass('hidden');
-                                $('#action-trumps').addClass('hidden');
-                                $('#action-waiting').addClass('hidden');
+                                showGuess();
+                                hideTrumps();
+                                hideLoader();
                                 if (response['guess_cant_say'] != 1000) {
                                     notAllowedValue = response['guess_cant_say'];
                                 }
                                 break;
                             case 'waiting':
                                 var waitingFor = response['for'];
-                                $('#action-waiting').removeClass('hidden');
-                                $('#action-trumps').addClass('hidden');
-                                $('#action-guess').addClass('hidden');
+                                hideTrumps();
+                                hideGuess();
                                 $('#waiting-for-text').html('Waiting for ' + waitingFor);
+                                showLoader();
                                 notAllowedValue = 1000;
                                 break;
                             case 'card':
-                                $('#action-trumps').addClass('hidden');
-                                $('#action-waiting').addClass('hidden');
-                                $('#action-guess').addClass('hidden');
+                                hideTrumps();
+                                hideGuess();
+                                hideLoader();
                                 notAllowedValue = 1000;
                                 break;
                         }
                     });
                 }
+
+                function showGuess()
+                {
+                    $('#action-guess').fadeIn("fast");
+                }
+
+                function hideGuess()
+                {
+                    $('#action-guess').fadeOut("fast");
+                }
+
+                function showLoader()
+                {
+                    $('#action-waiting').fadeIn("fast");
+                }
+
+                function hideLoader()
+                {
+                    $('#action-waiting').fadeOut("fast");
+                }
+
+                function showTrumps()
+                {
+                    $('#action-trumps').fadeIn("fast");
+                }
+
+                function hideTrumps()
+                {
+                    $('#action-trumps').fadeOut("fast");
+                }
+
                 setInterval(
                     updateCards,
                     1000
@@ -144,7 +192,18 @@
                 function updateCards() {
                     if (!cardProcessing) {
                         $.get('../../games/cards/{{ game.id }}', function(response) {
-                            $('#game-cards-container').html(response);
+                        $('#game-cards-container .card').hide();
+                        $('#game-cards-container .card').removeClass('disabled');
+                        $('#game-cards-container .card').removeClass('raised');
+                            $.each(response, function( key, value ) {
+                                $('#game-cards-container #card-' + key).show();
+                                if (value['disabled']) {
+                                    $('#game-cards-container  #card-' + key).addClass('disabled');
+                                }
+                                if (value['raised']) {
+                                    $('#game-cards-container  #card-' + key).addClass('raised');
+                                }
+                            });
                         });
                     }
                 }
@@ -155,19 +214,23 @@
 
                 $('#game-cards-container').on("click", ".playable-card", function() {
                     if (!cardProcessing) {
-                        var gameId = $('#game-cards-container .hand').data('gameid');
                         var cardValue = $(this).data('card');
                         cardProcessing = true;
                         $.get("../../players/update/play-card", {
-                            gameId: gameId,
+                            gameId: {{ game.id }},
                             card: cardValue
                         })
                             .done(function (data) {
                                 setTimeout(function () {
                                     cardProcessing = false;
                                 }, 1000);
-                                console.log('played card');
                             });
+
+                        $('#game-cards-container').hide();
+                        showLoader();
+                        setTimeout(function () {
+                            $('#game-cards-container').show();
+                        }, 1000);
                     }
                 });
 
@@ -191,7 +254,7 @@
                         trumps: suit
                     })
                         .done(function( data ) {
-                            $('#action-trumps').addClass('hidden');
+                            hideTrumps();
                         });
                 }
 
@@ -209,7 +272,7 @@
                             value: guessValue
                         })
                             .done(function( data ) {
-                                $('#action-guess').addClass('hidden');
+                                hideGuess();
                             });
                     } else {
                         $('#guess-text').html('Cannot say ' + guessValue);

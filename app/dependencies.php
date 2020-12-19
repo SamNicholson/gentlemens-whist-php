@@ -37,7 +37,7 @@ $container['logger'] = function ($c) {
     return $logger;
 };
 $container['database'] = function ($c) {
-    $database = new \App\Utility\Database('localhost', 'root', '', 'whist');
+    $database = new \App\Utility\Database('localhost', 'whist', 'whist123', 'whist');
     \App\Utility\DataRequest::setDatabase($database);
     return $database;
 };

@@ -4,12 +4,12 @@
 namespace App\Action;
 
 
+use App\Helpers;
 use App\Utility\ActionDrawer;
 use App\Utility\CardDrawer;
 use App\Utility\Database;
 use App\Utility\DataRequest;
 use App\Utility\GameDrawer;
-use MongoDB\Driver\Query;
 use Psr\Log\LoggerInterface;
 use Slim\Http\Request;
 use Slim\Http\Response;
@@ -43,7 +43,9 @@ class GameAction
         $this->view->render($response, 'game.twig',
             [
                 'game'     => $game,
-                'gameHTML' => GameDrawer::drawGame($this->database, $args['gameId'])
+                'gameHTML' => GameDrawer::drawGame($this->database, $args['gameId']),
+                'cardHTML' => GameDrawer::drawAllCards(),
+                'events'   => DataRequest::getAllEventsSince($args['gameId'])
             ]);
         return $response;
     }
@@ -64,11 +66,12 @@ class GameAction
     public function cards(Request $request, Response $response, $args)
     {
         $game = $this->database->queryRow("SELECT * FROM games WHERE id = ?", [$args['gameId']]);
-        return CardDrawer::drawCards($this->database, $args['gameId'], $_SESSION['user']);
+        return $response->withJson(CardDrawer::drawCards($this->database, $args['gameId'], $_SESSION['user']));
     }
 
     public function input(Request $request, Response $response, $args)
     {
+        $playerId = $_SESSION['user'];
         if ($request->getParam('valueType') == 'complete') {
             $this->database->q(
                 "UPDATE games_hands SET complete = 1 WHERE game_id = ? AND hand = ?",
@@ -87,9 +90,9 @@ class GameAction
                         $hand
                     ]
             );
+            DataRequest::addEvent( $request->getParam('gameId'), $playerId, 'Chose Trumps #SUIT-' . $request->getParam('trumps') . '#');
         } else {
             $hand = ActionDrawer::startHandIfNeeded($this->database, $request->getParam('gameId'), $_SESSION['user']);
-            $playerId = $_SESSION['user'];
             $this->database->q(
                 "INSERT INTO games_hands_players (game_id, hand, player_id, value_type, value) VALUES (?,?,?,?,?)",
                 [

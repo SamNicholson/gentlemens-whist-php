@@ -97,7 +97,7 @@ class PlayerAction
                 $request->getParam('card')
             ]
         );
-
+        DataRequest::addEvent($gameId, $player['id'], 'Played a card #CARD-' . $request->getParam('card') . '#');
     }
 
     public function updatePlayerProcess(Request $request, Response $response, $arguments)

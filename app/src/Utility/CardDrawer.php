@@ -20,18 +20,9 @@ class CardDrawer
         if ($nextAction == 'card') {
 
         }
-        $cardHtml = '';
         $usedCards = DataRequest::getCardsPlayedInHand($gameId, $hand, $_SESSION['user']);
         $cardsInTurn = DataRequest::getCardsPlayedInTurnByPlayer($gameId, $hand, $currentTurn);
 
-        $playedCardsHTML = '';
-        foreach ($cardsInTurn as $playerId => $card) {
-            $player = DataRequest::getPlayer($playerId);
-            $playedCardsHTML .= self::drawCard($card, '', $player['name']);
-        }
-        $cardHtml .= '<div class="playing-table">' . $playedCardsHTML . '</div>';
-
-        $cardHtml .= '<ul class="hand" data-gameId="' . $gameId . '">';
         $cards = explode(',', $cards['cards']);
 
         $suitsInHand = [];
@@ -41,29 +32,48 @@ class CardDrawer
             }
         }
         rsort($cards);
+        $cardsData = [];
         foreach ($cards as $card) {
             if (!in_array($card, $usedCards)) {
                 if ($nextAction == 'card') {
                     $leadingSuit = DataRequest::getLeadingSuitForTurn($gameId, $hand, $currentTurn);
                     if (empty($leadingSuit)) {
-                        $cardHtml .= self::drawCard($card);
+                        $cardsData[$card] = [
+                            'playable-card' => true,
+                            'raised'        => false,
+                            'disabled'      => false
+                        ];
                     } else {
                         if (!isset($suitsInHand[$leadingSuit])) {
-                            $cardHtml .= self::drawCard($card, 'playable-card raised');
+                            $cardsData[$card] = [
+                                'playable-card' => true,
+                                'raised'        => true,
+                                'disabled'      => false
+                            ];
                         } elseif ($leadingSuit == self::whatSuitIsCard($card)) {
-                            $cardHtml .= self::drawCard($card, 'playable-card raised');
+                            $cardsData[$card] = [
+                                'playable-card' => true,
+                                'raised'        => true,
+                                'disabled'      => false
+                            ];
                         } else {
-                            $cardHtml .= self::drawCard($card, 'disabled');
+                            $cardsData[$card] = [
+                                'playable-card' => false,
+                                'raised'        => false,
+                                'disabled'      => true
+                            ];
                         }
                     }
-
                 } else {
-                    $cardHtml .= self::drawCard($card, 'disabled');
+                    $cardsData[$card] = [
+                        'playable-card' => false,
+                        'raised'        => false,
+                        'disabled'      => true
+                    ];
                 }
             }
-        }
-        $cardHtml .= '</ul>';
-        return $cardHtml;
+        };
+        return $cardsData;
     }
 
     public static function dealCards(Database $database, $gameId, $hand)
@@ -119,7 +129,7 @@ class CardDrawer
 
     private static function getCardHTML($suit, $rank, $value, $playable = 'playable-card', $extraText = '')
     {
-        return '<div data-card="' . $value . '" class="' . $playable . ' card ' . $suit . ' rank-' . $rank . '">
+        return '<div id="card-' . $value . '" data-card="' . $value . '" class="' . $playable . ' card ' . $suit . ' rank-' . $rank . '">
                             <span class="rank">' . $rank . '</span>
                             <span class="' . $suit . '">&' . $suit . ';</span>
                             <span class="extra-text">' . $extraText . '</span>

@@ -30,12 +30,22 @@ class GameDrawer
             $completedHands[$row['hand']] = $row['complete'];
         }
         $currentPlayerTurn = DataRequest::whichPlayersTurnIsIt($gameId);
-        $html  = '<div class="row">
+        $html = "";
+        $html  .= '<div class="row">
                     <div class="col-md-6">';
         self::drawScoreTable($database, $gameId, $players, $currentPlayerTurn, $completedHands, $hands, $trumps, $html);
         $html .= '</div>';
         self::drawTurnsTable($database, $gameId, $players, $trumps, $currentPlayerTurn, $html);
         $html .= '</div>';
+        return $html;
+    }
+
+    public static function drawAllCards()
+    {
+        $html = "";
+        for ($i = 1; $i < 53; $i++) {
+            $html .= CardDrawer::drawCard($i);
+        }
         return $html;
     }
 

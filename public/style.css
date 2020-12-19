@@ -2,6 +2,37 @@ body {
     background-color: #259c9b;
 }
 
+.success, .table>tbody>tr.success>td {
+    background-color: rgba(223, 240, 216, 0.7) !important;
+}
+
+#game-cards-container-area {
+    min-height: 106px;
+}
+
+#loading-background {
+    position: fixed;
+    height:100%;
+    width:100%;
+    background-color:#259c9b;
+    z-index:9;
+    left:0;
+    top:0;
+}
+
+#action-waiting .loading-content {
+    position: fixed;
+    top: 5%;
+    width: 500px;
+    height: 250px;
+    background: #259c9b;
+    border-radius: 25px;
+    border: 10px solid white;
+    padding-top: 50px;
+    z-index: 10;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
 h1, h2, h3, h4, h5, label, table {
     color: white;
     font-weight: 200;
@@ -11,26 +42,25 @@ h1, h2, h3, h4, h5, label, table {
     padding-top:20px;
     text-align: center;
     cursor: pointer;
+    background: white;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    border-radius: 10px;
+    display: inline-block;
+    margin: 4%;
+    width: 15%;
+    padding-bottom: 30px;
 }
 
 .trump-choose .trump-suit {
-    background: white;
     margin:10px;
-    display: inline-block;
     width: 100%;
-    font-size: 50pt;
-    margin-top:0px;
-    border-radius: 0 0 10px 10px;
+    font-size: 75pt;
 }
 
 .trump-choose .trump-wording {
-    background: white;
     padding-top:10px;
-    margin:10px;
-    margin-bottom:0px;
     display: inline-block;
     width: 100%;
-    border-radius: 10px 10px 0px 0px;
 }
 
 #trumps-hearts .trump-suit, #trumps-diamonds .trump-suit {
@@ -43,7 +73,7 @@ h1, h2, h3, h4, h5, label, table {
     padding-left: 5px!important;
     width:70px !important;
     height:90px !important;
-
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
 #guess-text {
@@ -59,29 +89,43 @@ h1, h2, h3, h4, h5, label, table {
  Log Box
  */
 .game-log {
+    position:fixed;
+    z-index:11;
+    bottom:0;
+    left:0;
+    width:calc(100% - 20px);
+    height: 25%;
+    max-height: 250px;
     background-color: white;
-    border: 1px solid #777;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    height: 30px;
-    width:200px;
-    overflow: hidden;
+    border-radius: 5px 5px 0 0;
+    margin-left: 10px;
+    margin-right: 10px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
 .game-log.open {
-    height: 200px;
-    overflow-y: scroll;
+    height: 30px;
+    overflow-y: hidden;
 }
 
 .game-log h4 {
     margin:0;
-    color:#259c9b;
+    color:white;
     font-size: 10pt;
     padding: 8px;
     font-weight:bold;
     cursor: pointer;
-    border-bottom: 1px solid #777;
+    background-color: #1a4545;
+    border-radius: 5px 5px 0 0;
+}
+
+.game-log-messages {
+    height: 220px;
+    overflow-y: scroll;
+}
+
+.game-event {
+    padding: 5px;
 }
 
 /**
@@ -94,6 +138,19 @@ h1, h2, h3, h4, h5, label, table {
     height: 25%;
     margin-left:25%;
     margin-bottom:40px;
+}
+
+.card-mini {
+    text-align:center !important;
+    height: 25px !important;
+    width:30px !important;
+    padding: 2px !important;
+    margin: 0 !important;
+    margin-left: 3px !important;
+    font-size: 9pt !important;
+    display:inline-block !important;
+    float: none !important;
+    box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19) !important;
 }
 
 .card {
@@ -158,6 +215,7 @@ h1, h2, h3, h4, h5, label, table {
     border-radius: 10px;
     background-color: white;
     padding: 10px;
+    margin-bottom: 25%;
 }
 
 #game-score-container h4 {

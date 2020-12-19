@@ -29,6 +29,10 @@ class Database
     {
         //Start the connection to the database
         if (!self::$connection = mysqli_connect($databaseServer, $databaseUser, $databasePassword)) {
+            if (mysqli_connect_errno()) {
+                echo "Failed to connect to MySQL: " . mysqli_connect_error();
+                exit();
+            }
             echo 'error - database connection';
             die;
         }

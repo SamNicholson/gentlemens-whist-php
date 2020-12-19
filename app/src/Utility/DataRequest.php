@@ -433,6 +433,46 @@ class DataRequest
         }
     }
 
+    public static function addEvent($gameId, $playerId, $event)
+    {
+        self::$database->q(
+            "INSERT INTO games_events (game_id, player_id, event, event_time) VALUES (?,?,?,NOW())",
+            [
+                $gameId,
+                $playerId,
+                $event
+            ]
+        );
+    }
+
+    public static function getAllEventsSince($gameId, $since = false)
+    {
+        $events = self::$database->q(
+            "SELECT ge.game_id, ge.event_time, ge.event, p.name FROM games_events AS ge
+                    LEFT JOIN players p on ge.player_id = p.id 
+                    WHERE game_id = ? ORDER BY event_time DESC",
+            [
+                $gameId
+            ]
+        );
+
+        foreach ($events as &$event) {
+            $event['event'] = preg_replace_callback('/#CARD-([0-9]{1,2})#/m', function ($matches) {
+                return str_replace('#CARD-' . $matches[1] .'#', CardDrawer::drawCard($matches[1], 'card-mini'), $matches[0]);
+            }, $event['event']);
+            $event['event'] = preg_replace_callback('/#SUIT-([a-zA-Z]{1,8})#/m', function ($matches) {
+                if ($matches[1] == 'diamonds' || $matches[1] == 'hearts') {
+                    $html = '<span style="font-size:12pt;color:red;">' . CardDrawer::suitToHTML($matches[1]) . '</span>';
+                } else {
+                    $html = '<span style="font-size:12pt;color:black;">' . CardDrawer::suitToHTML($matches[1]) . '</span>';
+                }
+                return str_replace('#SUIT-' . $matches[1] .'#', $html, $matches[0]);
+            }, $event['event']);
+        }
+
+        return $events;
+    }
+
     public static function calculateTurnWinners($gameId, $hand, $firstTurnStarter)
     {
         $winners = [];
