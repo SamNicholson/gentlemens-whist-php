@@ -39,6 +39,7 @@ $container['logger'] = function ($c) {
 $container['database'] = function ($c) {
     $database = new \App\Utility\Database('localhost', 'whist', 'whist123', 'whist');
     \App\Utility\DataRequest::setDatabase($database);
+    \App\Utility\GameStatistics::setDatabase($database);
     return $database;
 };
 

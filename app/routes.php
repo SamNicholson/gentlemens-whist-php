@@ -10,6 +10,9 @@ $app->get('/login', App\Action\HomeAction::class . ':loginProcess')
 $app->get('/games', App\Action\HomeAction::class . ':games')
     ->setName('games');
 
+$app->get('/statistics', App\Action\HomeAction::class . ':statistics')
+    ->setName('statistics');
+
 $app->get('/games/create', App\Action\HomeAction::class . ':gameAdd')
     ->setName('gameAdd');
 

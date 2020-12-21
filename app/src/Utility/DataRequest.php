@@ -19,6 +19,17 @@ class DataRequest
         self::$database = $database;
     }
 
+    public static function isGameComplete($gameId)
+    {
+        $completed = self::$database->queryRow(
+            "SELECT completed FROM games WHERE id = ?",
+            [
+                $gameId
+            ]
+        );
+        return $completed['completed'] ? true : false;
+    }
+
     public static function completeGame($gameId)
     {
         $game = self::getGameInfo($gameId);
@@ -428,8 +439,9 @@ class DataRequest
         if (isset($turnWinners[$turn - 1])) {
             return CardDrawer::whatSuitIsCard($cards[$turnWinners[$turn - 1]]);
         }
+        $turnWinners = DataRequest::calculateTurnWinners($gameId, $hand, DataRequest::whoWonHand($gameId, $hand + 1));
         if ($turn == 1) {
-            return CardDrawer::whatSuitIsCard($cards[$players[0]['id']]);
+            return CardDrawer::whatSuitIsCard($cards[$turnWinners[13 - $hand]]);
         }
     }
 

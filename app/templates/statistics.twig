@@ -1,0 +1,42 @@
+{% extends 'base-container.twig' %}
+{% set hideLogo = true %}
+{% block content %}
+
+    <div class="row">
+        <div class="col-md-12 text-center">
+            <h1>Statistics</h1>
+            <br>
+            <table class="games-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Total Games</th>
+                        <th>First Place</th>
+                        <th>Middle Places</th>
+                        <th>Last Place</th>
+                        <th>Average Score</th>
+                        <th>Maximum Score</th>
+                        <th>Minimum Score</th>
+                        <th>Rank Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for data in playerStatistics %}
+                    <tr>
+                        <td>{{ data.player }}</td>
+                        <td>{{ data.totalGames }}</td>
+                        <td>{{ data.firstPlaces }}</td>
+                        <td>{{ data.secondPlaces }}</td>
+                        <td>{{ data.thirdPlaces }}</td>
+                        <td>{{ data.averageScore }}</td>
+                        <td>{{ data.maximumScore }}</td>
+                        <td>{{ data.minimumScore }}</td>
+                        <td>{{ (((data.firstPlaces * 3) + (data.secondPlaces * 2) + (data.thirdPlaces)) / data.totalGames)|round(2) }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+{% endblock %}

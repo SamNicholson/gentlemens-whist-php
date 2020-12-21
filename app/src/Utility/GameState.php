@@ -11,6 +11,12 @@ class GameState
         $turn = DataRequest::whichTurnIsIt($gameId, $hand);
         $players = DataRequest::getPlayersInGame($gameId);
 
+        $completed = DataRequest::isGameComplete($gameId);
+
+        if ($completed) {
+            return 'completed';
+        }
+
         $handData = DataRequest::getHandData($gameId, $hand);
         //Choose Trumps
         if (empty($handData['trumps'])) {

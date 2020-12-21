@@ -4,6 +4,7 @@ namespace App\Action;
 use App\Utility\Database;
 use App\Utility\DataRequest;
 use App\Utility\GameDrawer;
+use App\Utility\GameStatistics;
 use Slim\Views\Twig;
 use Psr\Log\LoggerInterface;
 use Slim\Http\Request;
@@ -47,6 +48,15 @@ final class HomeAction
             [
                 'completeGames'   => DataRequest::getCompleteGames(),
                 'unCompleteGames' => DataRequest::getNonCompleteGames()
+            ]);
+        return $response;
+    }
+
+    public function statistics(Request $request, Response $response, $args)
+    {
+        $this->view->render($response, 'statistics.twig',
+            [
+                'playerStatistics'   => GameStatistics::getPlayerStats()
             ]);
         return $response;
     }

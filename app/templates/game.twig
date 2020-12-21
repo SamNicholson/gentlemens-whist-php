@@ -5,13 +5,20 @@
 
     <div class="row">
     <div class="col-md-6 col-md-offset-3">
-    <div id="action-waiting" class="text-center">
+    <div id="action-waiting" class="text-center hidden">
         <div class="loading-content">
-            <img src="{{ base_url() }}/img/loader.gif">
-            <h3 id="waiting-for-text">Loading</h3>
+            <h3 id="waiting-for-text">Loading <img src="{{ base_url() }}/img/loader.gif" height="30px"></h3>
         </div>
-        <div id="loading-background" class="completely-black"></div>
+        <div class="loading-background top"></div>
+        <div class="loading-background left"></div>
+        <div class="loading-background bottom"></div>
     </div>
+    </div>
+    <div id="loader" class="text-center">
+        <div class="loading-content">
+            <h3 id="waiting-for-text">Loading <img src="{{ base_url() }}/img/loader.gif"></h3>
+        </div>
+        <div class="loading-background"></div>
     </div>
     </div>
         <div class="row">
@@ -113,10 +120,15 @@
                 function updateActions() {
                     $.get('../../games/actions/{{ game.id }}', function(response) {
                         if (firstTimeLoad) {
-                            $('#loading-background').animate({
+                            hideLoader();
+                            if (response['action'] != 'completed') {
+                                $('#action-waiting').removeClass('hidden');
+                            }
+                            $('.loading-background').animate({
                                 opacity: 0.35,
                             }, 500, function() {
-                                updateActions()
+                                updateActions();
+
                             });
                             $('#game-cards-container').fadeIn();
                             firstTimeLoad = false;
@@ -126,13 +138,13 @@
                             case 'trumps':
                                 showTrumps();
                                 hideGuess();
-                                hideLoader();
+                                hideWaiter();
                                 notAllowedValue = 1000;
                                 break;
                             case 'guess':
                                 showGuess();
                                 hideTrumps();
-                                hideLoader();
+                                hideWaiter();
                                 if (response['guess_cant_say'] != 1000) {
                                     notAllowedValue = response['guess_cant_say'];
                                 }
@@ -148,7 +160,13 @@
                             case 'card':
                                 hideTrumps();
                                 hideGuess();
-                                hideLoader();
+                                hideWaiter();
+                                notAllowedValue = 1000;
+                                break;
+                            case 'completed':
+                                hideTrumps();
+                                hideGuess();
+                                hideWaiter();
                                 notAllowedValue = 1000;
                                 break;
                         }
@@ -170,9 +188,14 @@
                     $('#action-waiting').fadeIn("fast");
                 }
 
-                function hideLoader()
+                function hideWaiter()
                 {
                     $('#action-waiting').fadeOut("fast");
+                }
+
+                function hideLoader()
+                {
+                    $('#loader').fadeOut("fast");
                 }
 
                 function showTrumps()

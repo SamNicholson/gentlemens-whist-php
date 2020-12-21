@@ -43,10 +43,69 @@ class GameDrawer
     public static function drawAllCards()
     {
         $html = "";
-        for ($i = 1; $i < 53; $i++) {
+        for ($i = 53; $i > 0; $i--) {
             $html .= CardDrawer::drawCard($i);
         }
         return $html;
+    }
+
+    public static function getCompletedTable(Database $database, $gameId, $players, $trumps, $currentPlayerTurn, &$html)
+    {
+        $html .= '<div class="col-md-6">
+            <h4>Final Scores</h4>';
+
+        $scoredPlayers = [];
+        foreach ($players as $player) {
+            $scoredPlayers[self::$scores[$player['id']]] = $player;
+        }
+        krsort($scoredPlayers);
+
+        $cardsPlayed = DataRequest::getCardsInHand($gameId, 1);
+
+        $html .= '<table class="table game-table table-striped">
+                <thead>
+                    <tr>
+                        <td style="font-weight:bold;">Position</td>
+                        <td style="font-weight:bold;">Player</td>
+                        <td style="font-weight:bold;">Score</td>
+                    </tr>
+                </thead>
+            ';
+        $count = 1;
+        foreach ($scoredPlayers as $score => $player) {
+            $position = '1st Place';
+            switch ($count) {
+                case 2:
+                    $position = '2nd Place';
+                    break;
+                case 3:
+                    $position = '3rd Place';
+                    break;
+                case 4:
+                    $position = '4th Place';
+                    break;
+            }
+            $html .= '<tr>';
+            $html .= '<td>' . $position . '</td>';
+            $html .= '<td>' . $player['nickname'] . ' <br><i>' . $player['name'] . '</td>';
+            $html .= '<td>' . $score . '</td>';
+            $html .= '</tr>';
+            $count++;
+        }
+        $html .= '</table><br><br>';
+        $html .= '<h4>1 Card Draw</h4>';
+        $html .= '<table class="table game-table table-striped">
+            <tr>';
+        foreach ($players as $player) {
+            $html .= '<td>' . $player['nickname'] . ' <br><i>' . $player['name'] . '</td>';
+        }
+        $html .= '</tr><tr>';
+        foreach ($players as $player) {
+            $html .= '<td class="text-center">' . CardDrawer::drawCard($cardsPlayed[$player['id']][1]) . '</td>';
+        }
+        $html .= '</tr>';
+        $html .= '</table>';
+        $html .= '</div>';
     }
 
     public static function drawTurnsTable(Database $database, $gameId, $players, $trumps, $currentPlayerTurn, &$html)
@@ -54,10 +113,17 @@ class GameDrawer
         $currentHand = ActionDrawer::startHandIfNeeded($database, $gameId, $_SESSION['user']);
         $currentTurn = DataRequest::whichTurnIsIt($gameId, $currentHand);
         $cardsPlayed = DataRequest::getCardsInHand($gameId, $currentHand);
+
+        $completed = DataRequest::isGameComplete($gameId);
+        if ($completed) {
+           self::getCompletedTable($database, $gameId, $players, $trumps, $currentPlayerTurn, $html);
+           return;
+        }
+
         $html .= '<div class="col-md-6">
             <h4>' . $currentHand . ' Card Draw</h4>
             <h4>Turn ' . $currentTurn . '</h4>';
-        $html .= '<table class="table game-table table-striped"><head>';
+        $html .= '<br><table class="table game-table table-striped"><head>';
         $contentHTML = '';
 
         $html .= '<tr>';
@@ -69,12 +135,18 @@ class GameDrawer
         }
         $html .= '</tr>';
 
-
-        for ($i = 1; $i <= $currentHand; $i++) {
+        for ($i = $currentHand; $i >= 1; $i--) {
+            $cardPlayed = false;
+            foreach ($players as $player) {
+                if (isset($cardsPlayed[$player['id']][$i])) {
+                    $cardPlayed = true;
+                }
+            }
             //Content HTML
-            $turnColor = $currentTurn == $i ? 'warning' : '';
-            $contentHTML .= '<tr>';
-            $contentHTML .= '<td class="' . $turnColor . '">' . $i;
+            if ($cardPlayed) {
+                $turnColor = $currentTurn == $i ? 'warning' : '';
+                $contentHTML .= '<tr>';
+                $contentHTML .= '<td class="' . $turnColor . '">' . $i;
                 foreach ($players as $player) {
                     if (isset($cardsPlayed[$player['id']][$i])) {
                         $contentHTML .= '<td class="' . $turnColor . '">' . CardDrawer::drawCard($cardsPlayed[$player['id']][$i]) . '</td>';
@@ -82,7 +154,8 @@ class GameDrawer
                         $contentHTML .= '<td class="' . $turnColor . '"></td>';
                     }
                 }
-            $contentHTML .= '</tr>';
+                $contentHTML .= '</tr>';
+            }
         }
         $html .= '</head>';
         $html .= '<tbody>' . $contentHTML . '</tbody>';

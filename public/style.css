@@ -10,7 +10,48 @@ body {
     min-height: 106px;
 }
 
-#loading-background {
+.loading-background {
+    position: fixed;
+    background-color:#259c9b;
+    z-index:9;
+}
+
+.loading-background.top {
+    height:310px;
+    width:100%;
+    left:0;
+    top:0;
+}
+
+.loading-background.left {
+    height:calc(100% - 310px);
+    width: calc(50% + 5px);
+    left:0;
+    bottom:0;
+}
+
+.loading-background.bottom {
+    height:calc(100% - 520px);
+    width: calc(50% - 5px);
+    right:0;
+    bottom:0;
+}
+
+#action-waiting .loading-content {
+    position: fixed;
+    top: 228px;
+    margin-left: 438px;
+    width: 400px;
+    height: 70px;
+    background: #259c9b;
+    border-radius: 25px;
+    border: 10px solid white;
+    padding-top: 0px;
+    z-index: 10;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+#loader .loading-background {
     position: fixed;
     height:100%;
     width:100%;
@@ -20,17 +61,22 @@ body {
     top:0;
 }
 
-#action-waiting .loading-content {
+#loader .loading-content {
     position: fixed;
     top: 5%;
+    margin-left: 325px;
     width: 500px;
-    height: 250px;
+    height: 150px;
     background: #259c9b;
     border-radius: 25px;
     border: 10px solid white;
-    padding-top: 50px;
+    padding-top: 0px;
     z-index: 10;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+#waiting-for-text {
+    margin-top: 12px !important;
 }
 
 h1, h2, h3, h4, h5, label, table {
